@@ -13,13 +13,16 @@ app.use(cors());
 //port assigning
 var port=3000;
 
+var complaints =  require("./model/complaint");
+var notes =  require("./model/note");
+var profiles =  require("./model/profile");
 var custom=require("./model/custom");
 
 //api to add data to database
 app.post('/addcustom',async(req,res)=>{
     try {
         await custom(req.body).save();
-        res.send("Data added")  //means that, if the data according to the model is received, then it will save it
+        res.send("Data added")  
     } catch (error) {
         
     }
@@ -56,6 +59,69 @@ app.put('/cupdate/:id',async(req,res)=>{
         res.send(error);
     }
 });
+
+
+    // to add data to database
+app.post('/complaints',async(req,res) => {
+    try {
+        await complaints(req.body).save();
+        res.send("Data added")
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+app.post('/notes',async(req,res) => {
+    try {
+        await notes(req.body).save();
+        res.send("Data added")
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+app.post('/profiles',async(req,res) => {
+    try {
+        await profiles(req.body).save();
+        res.send("Data added")
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
+
+app.put("/:id", async (req, res) => {
+  try {
+    const updatedProfile = await profiles.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProfile) {
+      return res.status(404).send("Profile not found");
+    }
+
+    res.send("Profile data updated");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error updating Profile data");
+  }
+});
+
+// app.get("/profile", async (req, res) => {
+//   try {
+//     const profile = await profiles.findOne(); 
+//     if (profile) {
+//       res.json(profile);
+//     } else {
+//       res.status(404).send("No profile found");
+//     }
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// });
 
 //api to get data
 //req- request res- response 
