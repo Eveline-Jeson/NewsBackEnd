@@ -9,23 +9,57 @@ app.use(express.json());
 //install cors
 var cors=require("cors");
 app.use(cors());
+
 //port assigning
 var port=3000;
-//port assigning
-var port=3000;
+
 var complaints =  require("./model/complaint");
 var notes =  require("./model/note");
 var profiles =  require("./model/profile");
-//api to get data
-//req- request res- response 
-//app.get('/',(req,res)=>{})
-app.get("/",(req,res)=>{
-    res.send("Hello")
-    });
-// server in listening state
-app.listen(port,()=>{
-    console.log(`Sever is up and running in ${port}`);
-    });
+var custom=require("./model/custom");
+
+//api to add data to database
+app.post('/addcustom',async(req,res)=>{
+    try {
+        await custom(req.body).save();
+        res.send("Data added")  
+    } catch (error) {
+        
+    }
+})
+
+
+//api to get custom news from db
+app.get('/viewcustom',async(req,res)=>{
+    try {
+        var data = await custom.find();
+        res.send(data);
+    } catch (error) {
+        res.send(error)
+    }
+})
+
+//api to delete a custom news from db
+app.delete('/cdel/:id',async(req,res)=>{
+    console.log(req.params.id)
+    try {
+        await custom.findByIdAndDelete(req.params.id);
+        res.send("deleted")
+    } catch (error) {
+        res.send(error);
+    }
+})
+
+//api to update a custom news
+app.put('/cupdate/:id',async(req,res)=>{
+    try {
+        await custom.findByIdAndUpdate(req.params.id,req.body);
+        res.send("data updated")
+    } catch (error) {
+        res.send(error);
+    }
+});
+
 
     // to add data to database
 app.post('/complaints',async(req,res) => {
@@ -88,3 +122,14 @@ app.put("/:id", async (req, res) => {
 //     res.status(500).send(error.message);
 //   }
 // });
+
+//api to get data
+//req- request res- response 
+//app.get('/',(req,res)=>{})
+app.get("/",(req,res)=>{
+    res.send("Hello")
+    });
+// server in listening state
+app.listen(port,()=>{
+    console.log(`Sever is up and running in ${port}`);
+    });
