@@ -9,10 +9,54 @@ app.use(express.json());
 //install cors
 var cors=require("cors");
 app.use(cors());
+
 //port assigning
 var port=3000;
-//port assigning
-var port=3000;
+
+var custom=require("./model/custom");
+
+//api to add data to database
+app.post('/addcustom',async(req,res)=>{
+    try {
+        await custom(req.body).save();
+        res.send("Data added")  //means that, if the data according to the model is received, then it will save it
+    } catch (error) {
+        
+    }
+})
+
+
+//api to get custom news from db
+app.get('/viewcustom',async(req,res)=>{
+    try {
+        var data = await custom.find();
+        res.send(data);
+    } catch (error) {
+        res.send(error)
+    }
+})
+
+//api to delete a custom news from db
+app.delete('/cdel/:id',async(req,res)=>{
+    console.log(req.params.id)
+    try {
+        await custom.findByIdAndDelete(req.params.id);
+        res.send("deleted")
+    } catch (error) {
+        res.send(error);
+    }
+})
+
+//api to update a custom news
+app.put('/cupdate/:id',async(req,res)=>{
+    try {
+        await custom.findByIdAndUpdate(req.params.id,req.body);
+        res.send("data updated")
+    } catch (error) {
+        res.send(error);
+    }
+});
+
 //api to get data
 //req- request res- response 
 //app.get('/',(req,res)=>{})
