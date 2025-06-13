@@ -4,6 +4,10 @@ var userSchema = mongoose.Schema({
     Name:String, 
     Email:String, 
     Password:String,
+    Doj: {
+        type: Date,
+        default: Date.now 
+    },
     Count:{
         type: Number,
         default: 0
