@@ -18,6 +18,7 @@ var port=3000;
 //app.get('/',(req,res)=>{})
 app.get("/",(req,res)=>{
     res.send("Hello")
+    
     });
 // server in listening state
 app.listen(port,()=>{
