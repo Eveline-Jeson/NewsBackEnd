@@ -19,6 +19,7 @@ var port=3000;
 
 var complaints =  require("./model/complaint");
 var notes =  require("./model/note");
+var reviews =  require("./model/review");
 var profiles =  require("./model/profile");
 var custom=require("./model/custom");
 
@@ -84,6 +85,15 @@ app.post('/notes',async(req,res) => {
     }
 })
 
+app.post('/reviews',async(req,res) => {
+    try {
+        await reviews(req.body).save();
+        res.send("Data added")
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 app.post('/profiles',async(req,res) => {
     try {
         await profiles(req.body).save();
@@ -114,6 +124,15 @@ app.put("/:id", async (req, res) => {
   }
 });
 
+app.get("/reviews",async (req,res)=>{
+    try {
+        var data =await reviews.find();
+        res.send(data);
+
+    } catch (error) {
+      res.send(error)  
+    }
+});
 // app.get("/profile", async (req, res) => {
 //   try {
 //     const profile = await profiles.findOne(); 
