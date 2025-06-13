@@ -15,6 +15,7 @@ var port=3000;
 var port=3000;
 var complaints =  require("./model/complaint");
 var notes =  require("./model/note");
+var reviews =  require("./model/review");
 var profiles =  require("./model/profile");
 //api to get data
 //req- request res- response 
@@ -40,6 +41,15 @@ app.post('/complaints',async(req,res) => {
 app.post('/notes',async(req,res) => {
     try {
         await notes(req.body).save();
+        res.send("Data added")
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+app.post('/reviews',async(req,res) => {
+    try {
+        await reviews(req.body).save();
         res.send("Data added")
     } catch (error) {
         console.log(error)
@@ -76,6 +86,15 @@ app.put("/:id", async (req, res) => {
   }
 });
 
+app.get("/reviews",async (req,res)=>{
+    try {
+        var data =await reviews.find();
+        res.send(data);
+
+    } catch (error) {
+      res.send(error)  
+    }
+});
 // app.get("/profile", async (req, res) => {
 //   try {
 //     const profile = await profiles.findOne(); 
