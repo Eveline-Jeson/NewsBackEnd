@@ -193,6 +193,28 @@ app.post('/addtomarket',async (req, res) =>{
     } catch (error) {}
 });
 
+
+//api to get users from db
+app.get('/viewuser',async(req,res)=>{
+    try {
+        var data = await users.find();
+        res.send(data);
+    } catch (error) {
+        res.send(error)
+    }
+})
+
+//api to delete a user from db
+app.delete('/udel/:id',async(req,res)=>{
+    console.log(req.params.id)
+    try {
+        await users.findByIdAndDelete(req.params.id);
+        res.send("deleted")
+    } catch (error) {
+        res.send(error);
+    }
+})
+
 // server in listening state
 app.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
