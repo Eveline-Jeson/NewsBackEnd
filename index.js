@@ -187,7 +187,7 @@ app.post('/login', async (req, res) => {
 
 app.post('/addtomarket',async (req, res) =>{
     try {
-        const newInnovation = new innovation(req.body); // ✅ Use 'new' keyword
+        const newInnovation = new innovation(req.body); 
         await newInnovation.save();
         res.send("Data Added");
     } catch (error) {}
