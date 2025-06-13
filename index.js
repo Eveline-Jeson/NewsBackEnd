@@ -133,6 +133,7 @@ app.put("/:id", async (req, res) => {
 //app.get('/',(req,res)=>{})
 app.get("/signup",(req,res)=>{
     res.send("Hello")
+    
     });
 //api to add data to db
  app.post('/signup', async (req, res) => {
