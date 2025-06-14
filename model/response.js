@@ -6,6 +6,7 @@ var responseschema = mongoose.Schema({
     description:String    
 });
 // model creation
-var responsemodel = mongoose.model("complaint",responseschema);
+var responsemodel = mongoose.model("response",responseschema);
 // exporting the model
 module.exports = responsemodel;
+

@@ -1,6 +1,6 @@
 var mongoose= require('mongoose')
 //schema creation 
-var userSchema = mongoose.Schema({
+var userSchema = new mongoose.Schema({
     Name:String, 
     Email:String, 
     Password:String,
@@ -12,7 +12,8 @@ var userSchema = mongoose.Schema({
         type: Number,
         default: 0
     }
-});
+}, { timestamps: true });
+
 //model creation
 //var studentModel = mongoose.model("collectionName",SchemaName);
 var userModel = mongoose.model("user",userSchema);

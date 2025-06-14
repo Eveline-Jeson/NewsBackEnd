@@ -235,6 +235,112 @@ app.delete('/udel/:id',async(req,res)=>{
     }
 })
 
+
+//api to fetch user compaints
+app.get('/admin/usercomp', async (req, res) => {
+       try{
+            var data= await complaints.find();
+            res.send(data);
+
+       }
+       catch(error){
+          res.send(error)
+       }
+});
+
+
+
+// Get total users count
+app.get('/count', async (req, res) => {
+  try {
+    const count = await users.countDocuments();
+    res.send({ count });
+  } catch (err) {
+       res.send(error)
+  }
+});
+
+
+
+/*
+app.get('/monthly-growth', async (req, res) => {
+  try {
+    const result = await users.aggregate([
+      // ... your existing aggregation pipeline
+    ]);
+    
+    // Ensure we always return an array
+    res.send(Array.isArray(result) ? result : []);
+  } catch (err) {
+    console.error('Error fetching monthly users:', err);
+    res.send(error) // Return empty array on error
+  }
+});
+ */
+
+
+
+// Get monthly growth data based on Doj (Date of Joining)
+app.get('/monthly-growth', async (req, res) => {
+  try {
+    const result = await users.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$Doj" },
+            month: { $month: "$Doj" }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      {
+        $project: {
+          month: {
+            $let: {
+              vars: {
+                monthsInString: ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+              },
+              in: {
+                $concat: [
+                  { $arrayElemAt: ["$$monthsInString", "$_id.month"] },
+                  " ",
+                  { $toString: "$_id.year" }
+                ]
+              }
+            }
+          },
+          count: 1,
+          _id: 0
+        }
+      }
+    ]);
+    res.send(Array.isArray(result) ? result : []);
+  } catch (err) {
+    console.error('Error fetching monthly growth:', err);
+     res.send(error) 
+  }
+});
+
+
+
+// Example route for newusers
+app.get('/recent-users', async (req, res) => {
+  try {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+    const recentUsers = await users.find({
+      createdAt: { $gte: twoDaysAgo }
+    }).sort({ createdAt: -1 }); // Sort by newest first
+
+    res.json(recentUsers);
+  } catch (err) {
+    res.send({ message: 'Server error' });
+  }
+});
+
 // server in listening state
 app.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
