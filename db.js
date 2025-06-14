@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
             .then(()=>{
             console.log("Db connected")
             })
-            .catch(()=>{
-            console.log(err)
+            .catch((err)=>{
+            console.error("MongoDB connection error:", err);
             });
+

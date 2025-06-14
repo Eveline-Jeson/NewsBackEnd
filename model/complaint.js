@@ -1,12 +1,11 @@
 var mongoose = require('mongoose')
 // schema creation
-var responseschema = mongoose.Schema({
+var complaintschema = mongoose.Schema({
     date:Date,
     issue:String,
     description:String    
 });
 // model creation
-var responsemodel = mongoose.model("response",responseschema);
+var complaintmodel = mongoose.model("complaint",complaintschema);
 // exporting the model
-module.exports = responsemodel;
-
+module.exports = complaintmodel;
