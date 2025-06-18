@@ -214,6 +214,16 @@ app.post('/addtomarket',async (req, res) =>{
 });
 
 
+app.get('/innovations',async (req, res) =>{
+    try{
+        const marketdata = await innovation.find();
+        res.send(marketdata);
+    }catch (error) {
+        console.error(error);
+        res.status(500).send("Error fetching innovation data");
+    }
+
+
 //api to get users from db
 app.get('/viewuser',async(req,res)=>{
     try {
@@ -339,6 +349,7 @@ app.get('/recent-users', async (req, res) => {
   } catch (err) {
     res.send({ message: 'Server error' });
   }
+
 });
 
 // server in listening state
