@@ -193,6 +193,16 @@ app.post('/addtomarket',async (req, res) =>{
     } catch (error) {}
 });
 
+app.get('/innovations',async (req, res) =>{
+    try{
+        const marketdata = await innovation.find();
+        res.send(marketdata);
+    }catch (error) {
+        console.error(error);
+        res.status(500).send("Error fetching innovation data");
+    }
+});
+
 // server in listening state
 app.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
