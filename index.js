@@ -19,6 +19,7 @@ var port=3000;
 
 var complaints =  require("./model/complaint");
 var notes =  require("./model/note");
+var reviews =  require("./model/review");
 var profiles =  require("./model/profile");
 var custom=require("./model/custom");
 
@@ -84,6 +85,15 @@ app.post('/notes',async(req,res) => {
     }
 })
 
+app.post('/reviews',async(req,res) => {
+    try {
+        await reviews(req.body).save();
+        res.send("Data added")
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 app.post('/profiles',async(req,res) => {
     try {
         await profiles(req.body).save();
@@ -114,6 +124,15 @@ app.put("/:id", async (req, res) => {
   }
 });
 
+app.get("/reviews",async (req,res)=>{
+    try {
+        var data =await reviews.find();
+        res.send(data);
+
+    } catch (error) {
+      res.send(error)  
+    }
+});
 // app.get("/profile", async (req, res) => {
 //   try {
 //     const profile = await profiles.findOne(); 
@@ -133,6 +152,7 @@ app.put("/:id", async (req, res) => {
 //app.get('/',(req,res)=>{})
 app.get("/signup",(req,res)=>{
     res.send("Hello")
+    
     });
 //api to add data to db
  app.post('/signup', async (req, res) => {
@@ -193,6 +213,7 @@ app.post('/addtomarket',async (req, res) =>{
     } catch (error) {}
 });
 
+
 app.get('/innovations',async (req, res) =>{
     try{
         const marketdata = await innovation.find();
@@ -201,6 +222,134 @@ app.get('/innovations',async (req, res) =>{
         console.error(error);
         res.status(500).send("Error fetching innovation data");
     }
+
+
+//api to get users from db
+app.get('/viewuser',async(req,res)=>{
+    try {
+        var data = await users.find();
+        res.send(data);
+    } catch (error) {
+        res.send(error)
+    }
+})
+
+//api to delete a user from db
+app.delete('/udel/:id',async(req,res)=>{
+    console.log(req.params.id)
+    try {
+        await users.findByIdAndDelete(req.params.id);
+        res.send("deleted")
+    } catch (error) {
+        res.send(error);
+    }
+})
+
+
+//api to fetch user compaints
+app.get('/admin/usercomp', async (req, res) => {
+       try{
+            var data= await complaints.find();
+            res.send(data);
+
+       }
+       catch(error){
+          res.send(error)
+       }
+});
+
+
+
+// Get total users count
+app.get('/count', async (req, res) => {
+  try {
+    const count = await users.countDocuments();
+    res.send({ count });
+  } catch (err) {
+       res.send(error)
+  }
+});
+
+
+
+/*
+app.get('/monthly-growth', async (req, res) => {
+  try {
+    const result = await users.aggregate([
+      // ... your existing aggregation pipeline
+    ]);
+    
+    // Ensure we always return an array
+    res.send(Array.isArray(result) ? result : []);
+  } catch (err) {
+    console.error('Error fetching monthly users:', err);
+    res.send(error) // Return empty array on error
+  }
+});
+ */
+
+
+
+// Get monthly growth data based on Doj (Date of Joining)
+app.get('/monthly-growth', async (req, res) => {
+  try {
+    const result = await users.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$Doj" },
+            month: { $month: "$Doj" }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      {
+        $project: {
+          month: {
+            $let: {
+              vars: {
+                monthsInString: ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+              },
+              in: {
+                $concat: [
+                  { $arrayElemAt: ["$$monthsInString", "$_id.month"] },
+                  " ",
+                  { $toString: "$_id.year" }
+                ]
+              }
+            }
+          },
+          count: 1,
+          _id: 0
+        }
+      }
+    ]);
+    res.send(Array.isArray(result) ? result : []);
+  } catch (err) {
+    console.error('Error fetching monthly growth:', err);
+     res.send(error) 
+  }
+});
+
+
+
+// Example route for newusers
+app.get('/recent-users', async (req, res) => {
+  try {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+    const recentUsers = await users.find({
+      createdAt: { $gte: twoDaysAgo }
+    }).sort({ createdAt: -1 }); // Sort by newest first
+
+    res.json(recentUsers);
+  } catch (err) {
+    res.send({ message: 'Server error' });
+  }
+
 });
 
 // server in listening state
