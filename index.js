@@ -1,7 +1,11 @@
+const http = require("http");
+const { Server } = require("socket.io");
+
 //importing express
 var express = require("express");
 //initialization
 var app =  express();
+const server = http.createServer(app);
 //db connection
 require("./db");
 //get the model file
@@ -192,16 +196,16 @@ app.post('/login', async (req, res) => {
 
                 await user.save(); 
 
-                res.json("Success");
+                res.json({ status: "Success", Name: user.Name });
             } else {
-                res.json("Password Incorrect");
+                 res.json({ status: "Password Incorrect" });
             }
         } else {
-            res.json("User Not Exist");
+            res.json({ status: "User Not Exist" });
         }
     } catch (error) {
         console.error("Error during login:", error);
-        res.status(500).json("Internal Server Error");
+        res.status(500).json({ status: "Internal Server Error" });
     }
 });
 
@@ -221,7 +225,7 @@ app.get('/innovations',async (req, res) =>{
     }catch (error) {
         console.error(error);
         res.status(500).send("Error fetching innovation data");
-    }
+    }})
 
 
 //api to get users from db
@@ -352,7 +356,28 @@ app.get('/recent-users', async (req, res) => {
 
 });
 
+//socket connection, sending-message ,disconnect 
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("New user connected: " + socket.id);
+
+  socket.on("sendMessage", (data) => {
+    console.log("Message received:", data);
+    socket.broadcast.emit("receiveMessage", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected: " + socket.id);
+  });
+});
+
 // server in listening state
-app.listen(port,()=>{
+server.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
     });
