@@ -1,7 +1,11 @@
+const http = require("http");
+const { Server } = require("socket.io");
+
 //importing express
 var express = require("express");
 //initialization
 var app =  express();
+const server = http.createServer(app);
 //db connection
 require("./db");
 //get the model file
@@ -134,23 +138,8 @@ app.get("/reviews",async (req,res)=>{
       res.send(error)  
     }
 });
-// app.get("/profile", async (req, res) => {
-//   try {
-//     const profile = await profiles.findOne(); 
-//     if (profile) {
-//       res.json(profile);
-//     } else {
-//       res.status(404).send("No profile found");
-//     }
-//   } catch (error) {
-//     res.status(500).send(error.message);
-//   }
-// });
 
 
-//api to get data
-//req- request res- response 
-//app.get('/',(req,res)=>{})
 app.get("/signup",(req,res)=>{
     res.send("Hello")
     
@@ -193,16 +182,16 @@ app.post('/login', async (req, res) => {
 
                 await user.save(); 
 
-                res.json("Success");
+                res.json({ status: "Success", Name: user.Name });
             } else {
-                res.json("Password Incorrect");
+                 res.json({ status: "Password Incorrect" });
             }
         } else {
-            res.json("User Not Exist");
+            res.json({ status: "User Not Exist" });
         }
     } catch (error) {
         console.error("Error during login:", error);
-        res.status(500).json("Internal Server Error");
+        res.status(500).json({ status: "Internal Server Error" });
     }
 });
 
@@ -222,8 +211,9 @@ app.get('/innovations',async (req, res) =>{
     }catch (error) {
         console.error(error);
         res.status(500).send("Error fetching innovation data");
-    }
-});
+    }})
+
+    
 
 //api to get users from db
 app.get('/viewuser',async(req,res)=>{
@@ -353,6 +343,27 @@ app.get('/recent-users', async (req, res) => {
 
 });
 
+//socket connection, sending-message ,disconnect 
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("New user connected: " + socket.id);
+
+  socket.on("sendMessage", (data) => {
+    console.log("Message received:", data);
+    socket.broadcast.emit("receiveMessage", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected: " + socket.id);
+  });
+});
+
 //api to add report to database
 app.post('/addreport',async(req,res)=>{
     try {
@@ -395,6 +406,31 @@ app.put('/markasread/:id', async (req, res) => {
 });
 
 // server in listening state
-app.listen(port,()=>{
+server.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
     });
+
+app.get('/notes/:name', async (req, res) => {
+  try {
+    const userNotes = await notes.find({ name: req.params.name }).sort({ date: -1 });
+    res.json(userNotes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching notes");
+  }
+});
+
+// Fetch profile based on email
+app.get("/profile/:email", async (req, res) => {
+  try {
+    const userProfile = await profiles.findOne({ email: req.params.email });
+    if (!userProfile) {
+      return res.status(404).send("Profile not found");
+    }
+    res.json(userProfile);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+});
+
