@@ -22,6 +22,7 @@ var notes =  require("./model/note");
 var reviews =  require("./model/review");
 var profiles =  require("./model/profile");
 var custom=require("./model/custom");
+var repo = require("./model/repo");
 
 //api to add data to database
 app.post('/addcustom',async(req,res)=>{
@@ -222,7 +223,7 @@ app.get('/innovations',async (req, res) =>{
         console.error(error);
         res.status(500).send("Error fetching innovation data");
     }
-
+});
 
 //api to get users from db
 app.get('/viewuser',async(req,res)=>{
@@ -350,6 +351,47 @@ app.get('/recent-users', async (req, res) => {
     res.send({ message: 'Server error' });
   }
 
+});
+
+//api to add report to database
+app.post('/addreport',async(req,res)=>{
+    try {
+        await repo(req.body).save();
+        res.send("Data added")  
+    } catch (error) {
+        
+    }
+})
+
+
+//api to get report from db
+app.get('/viewreport',async(req,res)=>{
+    try {
+        var data = await repo.find();
+        res.send(data);
+    } catch (error) {
+        res.send(error)
+    }
+})
+
+//api to delete a custom news from db
+app.delete('/rdel/:id',async(req,res)=>{
+    console.log(req.params.id)
+    try {
+        await repo.findByIdAndDelete(req.params.id);
+        res.send("deleted")
+    } catch (error) {
+        res.send(error);
+    }
+})
+
+app.put('/markasread/:id', async (req, res) => {
+    try {
+        await repo.findByIdAndUpdate(req.params.id, { isRead: true });
+        res.send("Marked as read");
+    } catch (error) {
+        res.send(error);
+    }
 });
 
 // server in listening state
