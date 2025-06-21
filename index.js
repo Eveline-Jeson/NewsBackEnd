@@ -137,23 +137,8 @@ app.get("/reviews",async (req,res)=>{
       res.send(error)  
     }
 });
-// app.get("/profile", async (req, res) => {
-//   try {
-//     const profile = await profiles.findOne(); 
-//     if (profile) {
-//       res.json(profile);
-//     } else {
-//       res.status(404).send("No profile found");
-//     }
-//   } catch (error) {
-//     res.status(500).send(error.message);
-//   }
-// });
 
 
-//api to get data
-//req- request res- response 
-//app.get('/',(req,res)=>{})
 app.get("/signup",(req,res)=>{
     res.send("Hello")
     
@@ -381,3 +366,20 @@ io.on("connection", (socket) => {
 server.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
     });
+
+
+
+// Fetch profile based on email
+app.get("/profile/:email", async (req, res) => {
+  try {
+    const userProfile = await profiles.findOne({ email: req.params.email });
+    if (!userProfile) {
+      return res.status(404).send("Profile not found");
+    }
+    res.json(userProfile);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+});
+
