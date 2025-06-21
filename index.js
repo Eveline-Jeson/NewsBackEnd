@@ -367,7 +367,15 @@ server.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
     });
 
-
+app.get('/notes/:name', async (req, res) => {
+  try {
+    const userNotes = await notes.find({ name: req.params.name }).sort({ date: -1 });
+    res.json(userNotes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching notes");
+  }
+});
 
 // Fetch profile based on email
 app.get("/profile/:email", async (req, res) => {
@@ -383,12 +391,3 @@ app.get("/profile/:email", async (req, res) => {
   }
 });
 
-app.get('/notes/:name', async (req, res) => {
-  try {
-    const userNotes = await notes.find({ name: req.params.name }).sort({ date: -1 });
-    res.json(userNotes);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error fetching notes");
-  }
-});
