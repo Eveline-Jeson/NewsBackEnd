@@ -4,7 +4,11 @@ var innovationSchema = mongoose.Schema({
     ProductName:String, 
     Details:String, 
     PhoneNumber:Number, 
-    Email:String
+    Email:String,
+    Doj: {
+        type: Date,
+        default: Date.now 
+    },
 });
 //model creation
 //var studentModel = mongoose.model("collectionName",SchemaName);
