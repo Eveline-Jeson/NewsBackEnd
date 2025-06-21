@@ -383,3 +383,12 @@ app.get("/profile/:email", async (req, res) => {
   }
 });
 
+app.get('/notes/:name', async (req, res) => {
+  try {
+    const userNotes = await notes.find({ name: req.params.name }).sort({ date: -1 });
+    res.json(userNotes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching notes");
+  }
+});
