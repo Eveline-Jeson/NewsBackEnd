@@ -26,6 +26,7 @@ var notes =  require("./model/note");
 var reviews =  require("./model/review");
 var profiles =  require("./model/profile");
 var custom=require("./model/custom");
+var repo = require("./model/repo");
 
 //api to add data to database
 app.post('/addcustom',async(req,res)=>{
@@ -137,23 +138,8 @@ app.get("/reviews",async (req,res)=>{
       res.send(error)  
     }
 });
-// app.get("/profile", async (req, res) => {
-//   try {
-//     const profile = await profiles.findOne(); 
-//     if (profile) {
-//       res.json(profile);
-//     } else {
-//       res.status(404).send("No profile found");
-//     }
-//   } catch (error) {
-//     res.status(500).send(error.message);
-//   }
-// });
 
 
-//api to get data
-//req- request res- response 
-//app.get('/',(req,res)=>{})
 app.get("/signup",(req,res)=>{
     res.send("Hello")
     
@@ -227,6 +213,7 @@ app.get('/innovations',async (req, res) =>{
         res.status(500).send("Error fetching innovation data");
     }})
 
+    
 
 //api to get users from db
 app.get('/viewuser',async(req,res)=>{
@@ -377,7 +364,73 @@ io.on("connection", (socket) => {
   });
 });
 
+//api to add report to database
+app.post('/addreport',async(req,res)=>{
+    try {
+        await repo(req.body).save();
+        res.send("Data added")  
+    } catch (error) {
+        
+    }
+})
+
+
+//api to get report from db
+app.get('/viewreport',async(req,res)=>{
+    try {
+        var data = await repo.find();
+        res.send(data);
+    } catch (error) {
+        res.send(error)
+    }
+})
+
+//api to delete a custom news from db
+app.delete('/rdel/:id',async(req,res)=>{
+    console.log(req.params.id)
+    try {
+        await repo.findByIdAndDelete(req.params.id);
+        res.send("deleted")
+    } catch (error) {
+        res.send(error);
+    }
+})
+
+app.put('/markasread/:id', async (req, res) => {
+    try {
+        await repo.findByIdAndUpdate(req.params.id, { isRead: true });
+        res.send("Marked as read");
+    } catch (error) {
+        res.send(error);
+    }
+});
+
 // server in listening state
 server.listen(port,()=>{
     console.log(`Sever is up and running in ${port}`);
     });
+
+app.get('/notes/:name', async (req, res) => {
+  try {
+    const userNotes = await notes.find({ name: req.params.name }).sort({ date: -1 });
+    res.json(userNotes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching notes");
+  }
+});
+
+// Fetch profile based on email
+app.get("/profile/:email", async (req, res) => {
+  try {
+    const userProfile = await profiles.findOne({ email: req.params.email });
+    if (!userProfile) {
+      return res.status(404).send("Profile not found");
+    }
+    res.json(userProfile);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+});
+
