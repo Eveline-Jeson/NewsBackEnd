@@ -4,6 +4,11 @@ var userSchema = new mongoose.Schema({
     Name:String, 
     Email:String, 
     Password:String,
+    role:{
+        type: String,
+        enum : ["admin","user","guest"],
+        default:"user"
+    },
     Doj: {
         type: Date,
         default: Date.now 

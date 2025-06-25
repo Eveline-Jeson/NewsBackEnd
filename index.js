@@ -11,6 +11,9 @@ require("./db");
 //get the model file
 var users=require("./models/User"); 
 var innovation=require("./models/Innovation");
+//webtoken
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = 'secret123'
 //midleware
 app.use(express.json());
 //install cors
@@ -182,7 +185,13 @@ app.post('/login', async (req, res) => {
 
                 await user.save(); 
 
-                res.json({ status: "Success", Name: user.Name });
+                const token = jwt.sign(
+                  {  id: user._id, role:user.role },
+                   SECRET_KEY,
+                  { expiresIn: '1h'}
+                );
+
+                res.json("Success");
             } else {
                  res.json({ status: "Password Incorrect" });
             }
@@ -237,18 +246,40 @@ app.delete('/udel/:id',async(req,res)=>{
 })
 
 
-//api to fetch user compaints
+// Updated API endpoint
 app.get('/admin/usercomp', async (req, res) => {
-       try{
-            var data= await complaints.find();
-            res.send(data);
-
-       }
-       catch(error){
-          res.send(error)
-       }
+  try {
+    const data = await complaints.find()
+      .populate('userId', 'email') // Populate only the email field from user
+      .sort({ date: -1 }); // Sort by most recent first
+    
+    res.send(data);
+  } catch(error) {
+    console.error("Error fetching complaints:", error);
+    res.status(500).send({ error: "Failed to fetch complaints" });
+  }
 });
 
+// Update complaint status
+app.patch('/admin/respond-complaint/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedComplaint = await complaints.findByIdAndUpdate(
+      id,
+      { status: 'responded' },
+      { new: true }
+    ).populate('userId', 'email');
+    
+    if (!updatedComplaint) {
+      return res.status(404).send({ error: 'Complaint not found' });
+    }
+    
+    res.send(updatedComplaint);
+  } catch (error) {
+    console.error("Error updating complaint:", error);
+    res.status(500).send({ error: "Failed to update complaint" });
+  }
+});
 
 
 // Get total users count
