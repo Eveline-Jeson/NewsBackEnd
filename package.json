@@ -7,12 +7,17 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "��#\u0000 \u0000N\u0000e\u0000w\u0000s\u0000B\u0000a\u0000c\u0000k\u0000E\u0000n\u0000d\u0000\r\u0000 \u0000",
   "dependencies": {
+    "axios": "^1.9.0",
     "cors": "^2.8.5",
     "cros": "^1.1.0",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "init": "^0.1.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1"
   }
 }
